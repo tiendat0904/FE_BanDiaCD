@@ -6,6 +6,12 @@ export interface thongtincdModel{
     ma_dao_dien?: number,
     mo_ta? : string,
     khu_vuc?: string,
-    isActive? : boolean,
-    checked?:  boolean
+    isActive? : number,
+    checked?:  boolean,
+    the_loai?: string,
+    gia_ban? : number,
+    so_luong?: number,
+    ten_dao_dien?: string,
+    ten_tem_ban_quyen?: string,
+    hinh_anh?: string,
  }

@@ -3,7 +3,7 @@
    <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-      <title>Nhà cung cấp</title>
+      <title>Hóa đơn nhập</title>
       <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
       <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
       <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
@@ -14,12 +14,12 @@
    </head>
    <body>
       <div class="container">
-         <div class="table-responsive">
+         <div class="table-responsive" style="width:1172px">
             <div class="table-wrapper">
                <div class="table-title">
                   <div class="row">
                      <div class="col-sm-8">
-                        <h2 style="font-size:30px;">Thông tin CD</h2>
+                        <h2 style="font-size:30px;">Hóa đơn nhập</h2>
                      </div>
                      <div class="col-sm-4">
                         <div class="search-box">
@@ -27,11 +27,11 @@
                            <input type="text" (keyup)="filterByKeyword()" [(ngModel)]="searchedKeyword" class="form-control" placeholder="Search&hellip;">
                         </div>
                      </div>
-                     <button (click)="initModal({},'add')" type="button" class="btn btn-primary" ><i class="fas fa-user-plus"></i>Thêm Thông tin CD</button>
+                     <button  type="button" class="btn btn-primary" (click)="getNavigation('danhsachhoadonnhap/create', '')" ><i class="fas fa-user-plus"></i>Thêm Hóa đơn nhập</button>
                      <button
                      type="button"
                      [hidden]="isDelete"
-                     (click)="xoathongtincd()"
+                     (click)="xoahoadonnhap()"
                      class="btn btn-danger"
                      >
                      <i class="fa fa-window-close" aria-hidden="true"></i> Xóa
@@ -51,10 +51,10 @@
                                  (change)="checkAllCheckBox($event)"
                                  />
                               <th>STT</th>
-                              <th>mã CD</th>
-                              <th>Tên CD</th>
-                              <th>Số lượng</th>
-                              <th>Giá Bán</th>
+                              <th>Mã HĐN</th>
+                              <th>Tên Nhân Viên</th>
+                              <th>Nhà phát hành</th>
+                              <th>Ngày nhập</th>
                               <th>Thao tác</th>
                            </tr>
                         </thead>
@@ -72,13 +72,13 @@
                                  type="checkbox"
                                  [(ngModel)]="listFilterResult[i + (page-1)*pageSize].checked"
                                  (ngModelChange)="changeModel()"
-                                 value="{{ e.ma_CD }}"
+                                 value="{{ e.ma_HDN }}"
                                  />
                               <td>{{ i + (page-1)*pageSize + 1 }}</td>
-                              <td [innerHTML]="e.ma_CD"></td>
-                              <td [innerHTML]="e.ten_CD"></td>
-                              <td [innerHTML]="e.so_luong"></td>
-                              <td [innerHTML]="e.gia_ban | currency:'VND'"></td>
+                              <td [innerHTML]="e.ma_HDN"></td>
+                              <td [innerHTML]="e.ten_nhan_vien"></td>
+                              <td [innerHTML]="e.ten_nha_phat_hanh"></td>
+                              <td [innerHTML]="e.ngay_nhap"></td>
                               
                               <td>
                                  <ng-template #mymodal let-modal>
@@ -96,13 +96,13 @@
                                        </button>
                                     </div>
                                     <div class="modal-body">
-                                       Bạn có chắc chắn muốn xóa thông tin CD {{ e.ten_CD }} ?
+                                       Bạn có chắc chắn muốn xóa hóa đơn nhập {{ e.ma_HDN }} này ?
                                     </div>
                                     <div class="modal-footer">
                                        <button
                                           class="btn btn-danger"
                                           style="width: 80px"
-                                          (click)="xoathongtincd(e.ma_CD)"
+                                          (click)="xoahoadonnhap(e.ma_HDN)"
                                           >
                                        Có
                                        </button>
@@ -116,9 +116,9 @@
                                     </div>
                                  </ng-template>
                                  <div class="row justify-content-center">
-                                    <button (click)="initModal(e,'show')"  class="view"   title="View" data-toggle="tooltip"><i class="material-icons">&#xE417;</i></button>
-                                    <button (click)="initModal(e,'edit')"  class="edit" title="Edit" data-toggle="tooltip"><i class="material-icons">&#xE254;</i></button>
-                                    <button class="delete"  (click)="open(mymodal)" title="Delete" data-toggle="tooltip"><i class="material-icons">&#xE872;</i></button>
+                                    <button  class="view" (click)="getNavigation('danhsachhoadonnhap/view/', e.ma_HDN)" title="View" data-toggle="tooltip"><i class="material-icons">&#xE417;</i></button>
+                                    <button   class="edit" (click)="getNavigation('danhsachhoadonnhap/update/', e.ma_HDN)" title="Edit" data-toggle="tooltip"><i class="material-icons">&#xE254;</i></button>
+                                    <button class="delete"  title="Delete" (click)="open(mymodal)" data-toggle="tooltip"><i class="material-icons">&#xE872;</i></button>
                                  </div>
                               </td>
                            </tr>
@@ -135,4 +135,3 @@
       </div>
    </body>
 </html>
-<app-capnhatthongtincd [danhsachthongtincd]="danhsachthongtincd" (eventEmit)="ngOnInit()" ></app-capnhatthongtincd>

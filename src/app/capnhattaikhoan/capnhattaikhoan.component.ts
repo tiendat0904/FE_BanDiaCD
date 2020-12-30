@@ -51,7 +51,6 @@ export class CapnhattaikhoanComponent implements OnInit {
         this.isAdd = true;
         this.title = `Thêm mới thông tin tài khoản`;
         this.update_ma_tai_khoan= this.arrCheck.length+1;
-        console.log(this.arrCheck);
         break;
       case 'show':
         this.isInfo = true;
@@ -176,7 +175,6 @@ export class CapnhattaikhoanComponent implements OnInit {
         this.toastr.error('Mã tài khoản đã tồn tại');
         return;
       }
-      console.log(taikhoan);
       this.taikhoanService.create(taikhoan).subscribe(res => {
           this.closeModalReloadData();
           this.toastr.success('Thêm mới thành công');

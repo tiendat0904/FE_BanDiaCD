@@ -1,0 +1,110 @@
+<ng-template #content let-modal>
+   <div class="modal-header">
+      <h4 class="modal-title" id="modal-basic-title">{{ title }}</h4>
+      <button
+         type="button"
+         class="close"
+         aria-label="Close"
+         (click)="modal.dismiss('Cross click')"
+         >
+      <span aria-hidden="true">&times;</span>
+      </button>
+   </div>
+   <div class="modal-body">
+      <form [formGroup]="formGroup" (ngSubmit)="save()">
+      <div class="row">
+         <div class="col-md-12">
+            <div class="form-group">
+               <label for="ma_HDN">Mã HĐN</label>
+               <input
+               type="text"
+               name=""
+               class="form-control"
+               formControlName="ma_HDN"
+               id="ma_HDN"
+               readonly
+               />
+            </div>
+         </div>
+         <div class="col-md-12">
+            <div class="form-group">
+               <label>Mã CD</label>
+               <select class="form-control" name="" formControlName="ma_CD" id="">
+                  <option *ngFor="let e of danhsachthongtincd" value="{{e.ma_CD}}">{{e.ten_CD}}</option>
+               </select>
+               <div *ngIf="submitted && formGroup.controls['ma_CD'].errors?.required">
+                  <div
+                     *ngIf="formGroup.controls['ma_CD'].errors?.required"
+                     style="color: red"
+                     >
+                     * CD không được để trống
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <div class="row">
+         <div class="col-md-12">
+            <div class="form-group">
+               <label for="so_luong">Số lượng</label>
+               <input
+                  type="number"
+                  name=""
+                  class="form-control"
+                  formControlName="so_luong"
+                  id="so_luong"
+                  />
+                <div *ngIf="submitted && formGroup.controls['so_luong'].errors?.required">
+                  <div
+                     *ngIf="formGroup.controls['so_luong'].errors?.required"
+                     style="color: red"
+                     >
+                     * Số lượng không được để trống
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <div class="row">
+         <div class="col-md-12">
+            <div class="form-group">
+               <label for="gia_nhap">Giá nhập</label>
+               <input
+                  type="number"
+                  name=""
+                  class="form-control"
+                  formControlName="gia_nhap"
+                  id="gia_nhap"
+                  />
+                <div *ngIf="submitted && formGroup.controls['gia_nhap'].errors?.required">
+                  <div
+                     *ngIf="formGroup.controls['gia_nhap'].errors?.required"
+                     style="color: red"
+                     >
+                     * Giá nhập không được để trống
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+      <div class="form-group" align="center">
+         <button
+         [hidden]="checkButton"
+         type="submit"
+         class="btn btn-success"
+         style="width: 100px"
+         *ngIf="isEdit || isAdd"
+         >
+         Lưu
+         </button>
+         <button
+            class="btn btn-danger"
+            style="width: 100px"
+            (click)="modal.dismiss('Cross click')"
+            >
+         Thoát
+         </button>
+      </div>
+      </form>
+   </div>
+</ng-template>

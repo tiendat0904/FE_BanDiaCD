@@ -1,49 +1,48 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { CapnhatthongtincdComponent } from '../capnhatthongtincd/capnhatthongtincd.component';
-import { thongtincdModel } from 'src/model/thongtincd-model';
+import { Component, OnInit } from '@angular/core';
+import { hoadonnhapModel } from 'src/model/hoadonnhap-model';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
-import { ThongTinCDService } from 'src/service/thongtincd.service';
+import { HoaDonNhapService } from 'src/service/hoadonnhap-service';
 import { ToastrService } from 'ngx-toastr';
+import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-danhsachthongtincd',
-  templateUrl: './danhsachthongtincd.component.html',
-  styleUrls: ['./danhsachthongtincd.component.css']
+  selector: 'app-danhsachhoadonnhap',
+  templateUrl: './danhsachhoadonnhap.component.html',
+  styleUrls: ['./danhsachhoadonnhap.component.css']
 })
-export class DanhsachthongtincdComponent implements OnInit {
+export class DanhsachhoadonnhapComponent implements OnInit {
 
-  @ViewChild(CapnhatthongtincdComponent) view!: CapnhatthongtincdComponent;
-  danhsachthongtincd: Array<thongtincdModel> = [];
+  danhsachhoadonnhap: Array<hoadonnhapModel> = [];
   modalReference: any;
   isDelete = true;
   closeResult: string;
   isLoading = false;
-  isDelete1 = false;
   isSelected = true;
   searchedKeyword: string;
-  listFilterResult: thongtincdModel[] = [];
+  listFilterResult: hoadonnhapModel[] = [];
   page = 1;
   pageSize = 5;
-  filterResultTemplist: thongtincdModel[] = [];
+  filterResultTemplist: hoadonnhapModel[] = [];
   constructor(
     private modalService: NgbModal,
-    private thongtincdService: ThongTinCDService,
-    private toastr: ToastrService
+    private hoadonnhapService: HoaDonNhapService,
+    private toastr: ToastrService,
+    private router: Router
     ) {
     }
 
   
   ngOnInit(): void {
-    this.fetchDanhsachthongtincd();
+    this.fetchDanhsachhoadonnhap();
   }
 
 
   
 
-  fetchDanhsachthongtincd() {
+  fetchDanhsachhoadonnhap() {
     this.isLoading = true;
-    this.thongtincdService.getAll().subscribe(data => {
-      this.danhsachthongtincd = data.data;
+    this.hoadonnhapService.getAll().subscribe(data => {
+      this.danhsachhoadonnhap = data.data;
       this.listFilterResult = data.data;
       this.listFilterResult.forEach((x) => (x.checked = false));
       this.filterResultTemplist = this.listFilterResult;
@@ -61,11 +60,10 @@ export class DanhsachthongtincdComponent implements OnInit {
       this.listFilterResult = this.filterResultTemplist;
       var keyword = this.searchedKeyword.toLowerCase();
       this.listFilterResult.forEach(item => {
-        var dc = item.ma_CD.toString();
-        var hot_line = item.ten_CD.toLowerCase();
-        var ten = item.so_luong.toString();
-        var ten1= item.gia_ban.toString();
-        if (hot_line.includes(keyword) || ten.includes(keyword) || dc.includes(keyword) || ten1.includes(keyword)) {
+        var dc = item.ma_HDN.toString();
+        var hot_line = item.ten_nhan_vien.toLowerCase();
+        var ten = item.ten_nha_phat_hanh.toLowerCase();
+        if (hot_line.includes(keyword) || ten.includes(keyword) || dc.includes(keyword)) {
           filterResult.push(item);
         }
       });
@@ -109,8 +107,8 @@ export class DanhsachthongtincdComponent implements OnInit {
 
   changeModel() {
     const selectedHometowns = this.listFilterResult
-      .filter((thongtincd) => thongtincd.checked)
-      .map((p) => p.ma_CD);
+      .filter((hoadonnhap) => hoadonnhap.checked)
+      .map((p) => p.ma_HDN);
     if (selectedHometowns.length > 0) {
       this.isDelete = false;
 
@@ -119,26 +117,26 @@ export class DanhsachthongtincdComponent implements OnInit {
     }
   }
 
-  xoathongtincd(item: any = null) {
-    let selectedthongtincd= [];
+  xoahoadonnhap(item: any = null) {
+    let selectedhoadonnhap= [];
     if (item !== null && item !== undefined && item !== '') {
-      selectedthongtincd.push(item);
-      this.delete(selectedthongtincd);
+      selectedhoadonnhap.push(item);
+      this.delete(selectedhoadonnhap);
       return;
     }
-    selectedthongtincd = this.listFilterResult
-      .filter((thongtincd) => thongtincd.checked)
-      .map((p) => p.ma_CD);
-    if (selectedthongtincd.length === 0) {
+    selectedhoadonnhap = this.listFilterResult
+      .filter((hoadonnhap) => hoadonnhap.checked)
+      .map((p) => p.ma_HDN);
+    if (selectedhoadonnhap.length === 0) {
       this.toastr.error('Chọn ít nhất một bản ghi để xóa.');
       return;
     }
-    this.delete(selectedthongtincd);
+    this.delete(selectedhoadonnhap);
   }
 
-  initModal(model: any,type = null): void {
-    this.view.view(model, type);
-  }
+  // initModal(model: any,type = null): void {
+  //   this.view.view(model, type);
+  // }
 
   changeStatus(event: any) {
     this.isLoading = true;
@@ -146,16 +144,16 @@ export class DanhsachthongtincdComponent implements OnInit {
     // tslint:disable-next-line: radix
     switch (parseInt(event)) {
       case -1:
-        this.listFilterResult = [...this.danhsachthongtincd];
+        this.listFilterResult = [...this.danhsachhoadonnhap];
         this.isLoading = false;
         break;
       case 1:
-        list = [...this.danhsachthongtincd];
+        list = [...this.danhsachhoadonnhap];
         this.listFilterResult = list.filter(item => item.isActive === 1);
         this.isLoading = false;
         break;
       case 0:
-        list = [...this.danhsachthongtincd];
+        list = [...this.danhsachhoadonnhap];
         this.listFilterResult = list.filter(item => item.isActive === 0);
         this.isLoading = false;
         break;
@@ -163,6 +161,14 @@ export class DanhsachthongtincdComponent implements OnInit {
         break;
     }
   }
+
+  getNavigation(link, id){
+    if(id === ''){
+        this.router.navigate([link]);
+    } else {
+        this.router.navigate([link + '/' + id]);
+    }
+}
 
   public delete(listid: any) {
     const modelDelete = {
@@ -182,8 +188,8 @@ export class DanhsachthongtincdComponent implements OnInit {
     }
     this.searchedKeyword = null;
     this.filterResultTemplist = this.listFilterResult;
-    console.log(modelDelete);
-    this.thongtincdService.delete(modelDelete).subscribe(
+
+    this.hoadonnhapService.delete(modelDelete).subscribe(
       (result) => {
         // status: 200
         this.ngOnInit();

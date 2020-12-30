@@ -16,6 +16,16 @@ import { Ng2SearchPipeModule } from 'ng2-search-filter';
 import { PipesModule } from 'src/pipe/pipes/pipes.module';
 import { DanhsachthongtincdComponent } from './danhsachthongtincd/danhsachthongtincd.component';
 import { CapnhatthongtincdComponent } from './capnhatthongtincd/capnhatthongtincd.component';
+import { environment } from 'src/environments/environment';
+import { DatePipe } from '@angular/common'
+import {AngularFireModule} from "@angular/fire";
+import {AngularFireStorageModule} from "@angular/fire/storage";
+import {AngularFireDatabaseModule} from "@angular/fire/database";
+import { DanhsachhoadonnhapComponent } from './danhsachhoadonnhap/danhsachhoadonnhap.component';
+import { DanhsachchitiethoadonnhapComponent } from './danhsachchitiethoadonnhap/danhsachchitiethoadonnhap.component';
+import { CapnhatchitiethoadonnhapComponent } from './capnhatchitiethoadonnhap/capnhatchitiethoadonnhap.component';
+import { ViewdanhsachchitiethoadonnhapComponent } from './viewdanhsachchitiethoadonnhap/viewdanhsachchitiethoadonnhap.component';
+import { UpdatedanhsachchitiethoadonnhapComponent } from './updatedanhsachchitiethoadonnhap/updatedanhsachchitiethoadonnhap.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -23,7 +33,12 @@ import { CapnhatthongtincdComponent } from './capnhatthongtincd/capnhatthongtinc
     DanhsachtaikhoanComponent,
     CapnhattaikhoanComponent,
     DanhsachthongtincdComponent,
-    CapnhatthongtincdComponent, 
+    CapnhatthongtincdComponent,
+    DanhsachhoadonnhapComponent,
+    DanhsachchitiethoadonnhapComponent,
+    CapnhatchitiethoadonnhapComponent,
+    ViewdanhsachchitiethoadonnhapComponent,
+    UpdatedanhsachchitiethoadonnhapComponent, 
   ],
   imports: [
     BrowserModule,
@@ -32,6 +47,9 @@ import { CapnhatthongtincdComponent } from './capnhatthongtincd/capnhatthongtinc
     FormsModule,
     HttpClientModule,
     CommonModule,
+    AngularFireModule.initializeApp(environment.firebaseConfig),
+    AngularFireStorageModule,
+    AngularFireDatabaseModule,
     ReactiveFormsModule,
     NgbPaginationModule,
     Ng2SearchPipeModule,
@@ -49,6 +67,27 @@ import { CapnhatthongtincdComponent } from './capnhatthongtincd/capnhatthongtinc
         component:DanhsachtaikhoanComponent
       },
       {
+        path: 'danhsachtaikhoan',
+        component:DanhsachtaikhoanComponent
+      },
+      {
+        path: 'danhsachhoadonnhap',
+        component:DanhsachhoadonnhapComponent
+      },
+      {
+        path: 'danhsachhoadonnhap/create',
+        component:DanhsachchitiethoadonnhapComponent
+      },
+
+      {
+        path: 'danhsachhoadonnhap/view/:id',
+        component:ViewdanhsachchitiethoadonnhapComponent
+      },
+      {
+        path: 'danhsachhoadonnhap/update/:id',
+        component:UpdatedanhsachchitiethoadonnhapComponent
+      },
+      {
         path: 'danhsachthongtincd',
         component:DanhsachthongtincdComponent
       },
@@ -59,7 +98,7 @@ import { CapnhatthongtincdComponent } from './capnhatthongtincd/capnhatthongtinc
     ])
     
   ],
-  providers: [],
+  providers: [DatePipe],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild, Input, Output, EventEmitter } from '@angular/core';
 import { ModalDirective } from 'ngx-bootstrap/modal';
+import firebase from 'firebase';
 import { thongtincdModel } from 'src/model/thongtincd-model';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
@@ -11,6 +12,13 @@ import { TemBanQuyenService } from 'src/service/tembanquyen.service';
 import { DaoDienService } from 'src/service/daodien.service';
 import { tembanquyenModel } from 'src/model/tembanquyen-model';
 import { loaicdModel } from 'src/model/loaicd-model';
+
+import { Subscription } from 'rxjs';
+
+import { Observable } from 'rxjs';
+import { finalize } from 'rxjs/operators';
+import { avatarDefault } from 'src/environments/environment';
+import { AngularFireStorage } from '@angular/fire/storage';
 
 @Component({
   selector: 'app-capnhatthongtincd',
@@ -24,6 +32,7 @@ export class CapnhatthongtincdComponent implements OnInit {
   @Output() eventEmit: EventEmitter<any> = new EventEmitter<any>();
   danhsachloaicd: Array<loaicdModel> = [];
   danhsachdaodien: Array<daodienModel> = [];
+  danhsachthongtincd1 : Array<thongtincdModel> = [];
   danhsachtembanquyen: Array<tembanquyenModel> = [];
   checkButton = false;
   closeResult: String;
@@ -39,6 +48,11 @@ export class CapnhatthongtincdComponent implements OnInit {
   model: thongtincdModel;
   arrCheck = [];
   update_ma_CD: any;
+  update_ma_cD1:any;
+
+  uploadPercent: Observable<number>;
+  downloadURL: Observable<string>;
+  urlPictureDefault = avatarDefault;
   constructor(
     private modalService: NgbModal,
     private toastr: ToastrService,
@@ -46,7 +60,8 @@ export class CapnhatthongtincdComponent implements OnInit {
     private thongtincdService: ThongTinCDService,
     private loaicdService: LoaiCDService,
     private tembanquyenService: TemBanQuyenService,
-    private daodienService: DaoDienService) {
+    private daodienService: DaoDienService,
+    private store: AngularFireStorage) {
     }
 
   ngOnInit(): void {
@@ -54,13 +69,23 @@ export class CapnhatthongtincdComponent implements OnInit {
     this.fetchDanhsachdaodien();
     this.fetchDanhsachloaicd();
     this.fetchDanhsachtembanquyen();
+    this.thongtincdService.getAll().subscribe(data => {
+      this.danhsachthongtincd1 = data.data;
+      this.update_ma_cD1 = this.danhsachthongtincd1[this.danhsachthongtincd1.length-1].ma_CD;
+      this.update_ma_cD1 = this.update_ma_cD1 +1;
+      console.log(this.danhsachthongtincd1);
+
+    },
+      err => {
+        this.isLoading = false;
+      })
     
   }
 
   fetchDanhsachloaicd(){
     this.isLoading =  true;
     this.loaicdService.getAll().subscribe(data => {
-      this.danhsachloaicd = data;
+      this.danhsachloaicd = data.data;
     },
     err => {
         this.isLoading = false;
@@ -70,7 +95,7 @@ export class CapnhatthongtincdComponent implements OnInit {
   fetchDanhsachdaodien(){
     this.isLoading =  true;
     this.daodienService.getAll().subscribe(data => {
-      this.danhsachdaodien= data;
+      this.danhsachdaodien= data.data;
     },
     err => {
         this.isLoading = false;
@@ -80,7 +105,7 @@ export class CapnhatthongtincdComponent implements OnInit {
   fetchDanhsachtembanquyen(){
     this.isLoading =  true;
     this.tembanquyenService.getAll().subscribe(data => {
-      this.danhsachtembanquyen= data;
+      this.danhsachtembanquyen= data.data;
     },
     err => {
         this.isLoading = false;
@@ -93,10 +118,9 @@ export class CapnhatthongtincdComponent implements OnInit {
       case 'add':
         this.isInfo = false;
         this.isEdit = false;
-        this.isAdd = true;
+        this.isAdd = true;  
         this.title = `Thêm mới thông tin CD`;
-        this.update_ma_CD= this.arrCheck.length+1;
-        console.log(this.arrCheck);
+        this.update_ma_CD= this.update_ma_cD1;
         break;
       case 'show':
         this.isInfo = true;
@@ -121,7 +145,10 @@ export class CapnhatthongtincdComponent implements OnInit {
   }
 
   view(model: thongtincdModel, type = null): void {
-    this.arrCheck = this.danhsachthongtincd;
+   
+    
+    
+    this.arrCheck = this.danhsachthongtincd1;
     this.open(this.childModal);
     this.type = type;
     this.model = model;
@@ -135,10 +162,13 @@ export class CapnhatthongtincdComponent implements OnInit {
         ma_loai_CD: [ null, [Validators.required]],
         ma_tem_ban_quyen: [ null, [Validators.required]],
         ma_dao_dien: [ null, [Validators.required]],
-        mo_ta: [ null, [Validators.required]],
-        khu_vuc : [ null, [Validators.required]],
+        mo_ta: [ null],
+        gia_ban:[ null],
+        so_luong: [ null],
+        khu_vuc : [ null],
         
       });
+      this.urlPictureDefault = avatarDefault;
     } else {
       this.formGroup = this.fb.group({
         ma_CD: [{value: this.model.ma_CD, disabled: this.isInfo}, [Validators.required]],
@@ -146,10 +176,20 @@ export class CapnhatthongtincdComponent implements OnInit {
         ma_loai_CD:  [{value: this.model.ma_loai_CD, disabled: this.isInfo}, [Validators.required]],
         ma_tem_ban_quyen:  [{value: this.model.ma_tem_ban_quyen, disabled: this.isInfo}, [Validators.required]],
         ma_dao_dien:  [{value: this.model.ma_dao_dien, disabled: this.isInfo}, [Validators.required]],
-        mo_ta:  [{value: this.model.mo_ta, disabled: this.isInfo}, [Validators.required]],
-        khu_vuc : [{value: this.model.khu_vuc, disabled: this.isInfo}, [Validators.required]],
+        mo_ta:  [{value: this.model.mo_ta, disabled: this.isInfo}],
+        gia_ban :  [{value: this.model.gia_ban, disabled: this.isInfo}],
+        so_luong :  [{value: this.model.so_luong, disabled: this.isInfo}],
+        khu_vuc : [{value: this.model.khu_vuc, disabled: this.isInfo}],
+        hinh_anh : [{value: this.model.hinh_anh, disabled: this.isInfo}],
+        
       });
+      if(this.model.hinh_anh===""){
+        this.urlPictureDefault = avatarDefault;
+      }
+      else{
+        this.urlPictureDefault=this.model.hinh_anh;
 
+      }
 
     }
   }
@@ -185,10 +225,10 @@ export class CapnhatthongtincdComponent implements OnInit {
     let check = false;
     let thongtincd: thongtincdModel;
     this.submitted = true;
-    // if (this.formGroup.invalid) {
-    //   this.toastr.error('Kiểm tra thông tin các trường đã nhập');
-    //   return;
-    // }
+    if (this.formGroup.invalid) {
+      this.toastr.error('Kiểm tra thông tin các trường đã nhập');
+      return;
+    }
     if (this.isEdit) {
       thongtincd = {
         ma_CD: this.formGroup.get('ma_CD')?.value,
@@ -198,6 +238,7 @@ export class CapnhatthongtincdComponent implements OnInit {
         ma_dao_dien: this.formGroup.get('ma_dao_dien')?.value,
         mo_ta: this.formGroup.get('mo_ta')?.value,
         khu_vuc : this.formGroup.get('khu_vuc')?.value,
+        hinh_anh : this.urlPictureDefault,
       };
     } else {
       thongtincd = {
@@ -208,6 +249,7 @@ export class CapnhatthongtincdComponent implements OnInit {
         ma_dao_dien: this.formGroup.get('ma_dao_dien')?.value,
         mo_ta: this.formGroup.get('mo_ta')?.value,
         khu_vuc : this.formGroup.get('khu_vuc')?.value,
+        hinh_anh : this.urlPictureDefault,
       };
     }
     if (this.isAdd) {
@@ -221,33 +263,68 @@ export class CapnhatthongtincdComponent implements OnInit {
         this.toastr.error('Mã CD đã tồn tại');
         return;
       }
-      console.log(thongtincd);
       this.thongtincdService.create(thongtincd).subscribe(res => {
-          this.closeModalReloadData();
-          this.toastr.success('Thêm mới thành công');
-          this.modalReference.dismiss();
+        this.closeModalReloadData();
+        this.toastr.success(res.success);
+        this.thongtincdService.getAll().subscribe(data => {
+          this.danhsachthongtincd1 = data.data;
+          this.update_ma_cD1 = this.danhsachthongtincd1[this.danhsachthongtincd1.length-1].ma_CD;
+          this.update_ma_cD1 = this.update_ma_cD1 +1;
+    
         },
-        err => {
-          this.toastr.error(err);
-          this.toastr.error('Có lỗi xảy ra!');
-        });
+          err => {
+            this.isLoading = false;
+          })
+        console.log(this.update_ma_cD1);
+        this.modalReference.dismiss();
+      },
+      err => {
+        this.toastr.error(err.error.error);
+      }
+      );
     }
+    
     if (this.isEdit) {
       this.thongtincdService.update(thongtincd.ma_CD, thongtincd).subscribe(res => {
-          this.closeModalReloadData();
-          this.toastr.success('Sửa thành công');
-          this.modalReference.dismiss();
-        },
-        err => {
-          this.toastr.error(err);
-          this.toastr.error('Có lỗi xảy ra!');
-        });
+        this.closeModalReloadData();
+        this.toastr.success(res.success);
+        this.modalReference.dismiss();
+      },
+      err => {
+        this.toastr.error(err.error.error);
+      }
+      );
     }
   }
 
   public closeModalReloadData(): void {
     this.submitted = false;
     this.eventEmit.emit('success');
+  }
+
+  uploadImage(event) {
+    // tslint:disable-next-line:prefer-const
+    let file = event.target.files[0];
+    // tslint:disable-next-line:prefer-const
+    let path = `${file.name}`;
+    if (file.type.split('/')[0] !== 'image') {
+      return alert('Erreur, ce fichier n\'est pas une image');
+    } else {
+      // tslint:disable-next-line:prefer-const
+      let ref = this.store.ref(path);
+      // tslint:disable-next-line:prefer-const
+      let task = this.store.upload(path, file);
+      this.uploadPercent = task.percentageChanges();
+      task.snapshotChanges().pipe(
+        finalize(() => {
+          this.downloadURL = ref.getDownloadURL();
+          this.downloadURL.subscribe(url => {
+          this.urlPictureDefault=url;
+          });
+        }
+        )
+      ).subscribe();
+    }
   }
 
 }
